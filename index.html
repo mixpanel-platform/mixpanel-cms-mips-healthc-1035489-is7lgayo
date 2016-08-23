@@ -5,11 +5,72 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- custom style -->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body class="mixpanel-platform-body">
-    <h1>Hello, World!</h1>
+    <script src="js/initialQuery.js" charset="utf-8"></script> <!--link to initial Query-->
+    <script src="js/eventQuery.js" charset="utf-8"></script> <!--link to other Query-->
+    <script src="js/eventsByHour.js" charset="utf-8"></script> <!--link to other Query-->
+    <div class="mixpanel-platform-section">
+      <div class="row">
+        <div class="col-sm-12">
+        </div>
+      </div>
+      <div class="row" id="selectors">
+        <div class="col-sm-12" style="margin: 10px 0px 10px 0px;">
+          <div class="pull-left"id="eventSelect" style=""></div>
+          <div id="by" class=" pull-left mixpanel-platform-label vcenter" style="margin: 3px 10px 3px 10px; display: none;">BY</div>
+          <div class="pull-left" id="propSelect" style=""></div>
+          <div class="pull-right"id="dateSelect"></div>
+          <div class="pull-right"id="bucketSelect" style="margin-right: 8px;"></div>
+        </div>
+      </div>
+      <div style="clear: both;"></div>
+      <div class="row">
+        <div class="col-sm-12" id="graph-container">
+          <div id="graph"></div>
+        </div>
+      </div>
+    </div>
+    <div id="table"></div>
     <script>
-      // Run queries and display results here
+      var options = {   //set option for someone to either look at data grouped by day of week or by hour in day
+        items: [
+          {label: 'Day', value: "day"},
+          {label: 'Hour', value: 'hour'}
+        ]
+      };
+      var eventSelect = $('#eventSelect').MPEventSelect();
+      var propSelect  = $('#propSelect').MPPropertySelect();
+      var dateSelect  = $('#dateSelect').MPDatepicker();
+      var bucketSelect  = $('#bucketSelect').MPSelect(options);
+      var eventGraph  = $('#graph').MPChart({chartType: 'line'});
+      var eventTable  = $('#table').MPTable({
+        showPercentages: true,
+        firstColHeader: 'Event'
+      });
+      runQuery() // run initial query to show data from default time frame
+      dateSelect.on('change', function(){    //re-run query whenever the date picker is changed
+        var eventName = eventSelect.MPEventSelect('value')
+        if(eventName){
+          runEventQuery()
+        }else {
+          runQuery()
+        }
+      });
+      eventSelect.on('change', function(e, eventName) {
+        propSelect.MPPropertySelect('setEvent', eventName);
+        $("#by").show();
+        $("#bucketSelect")
+        runEventQuery();
+      });
+      propSelect.on('change', runEventQuery)
+      bucketSelect.on('change', runEventQuery)
+
     </script>
   </body>
 </html>
